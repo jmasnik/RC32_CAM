@@ -1,0 +1,7 @@
+{
+    "sketch": "rc32_cam.ino",
+    "output": "build",
+    "port": "COM14",
+    "board": "esp32:esp32:esp32",
+    "configuration": "PSRAM=enabled,PartitionScheme=huge_app,CPUFreq=240,FlashMode=dio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,DebugLevel=none"
+}

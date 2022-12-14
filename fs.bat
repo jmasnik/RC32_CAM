@@ -1,0 +1,1 @@
+C:\Users\jmasn\AppData\Local\Arduino15\packages\esp32\tools\mkspiffs\0.2.3\mkspiffs.exe -c D:\Projects_ESP\RC32_CAM\fs -b 4096 -p 256 -s 0xF0000 spiffs.bin

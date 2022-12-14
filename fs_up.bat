@@ -1,0 +1,1 @@
+C:\Users\jmasn\AppData\Local\Arduino15\packages\esp32\tools\esptool_py\3.3.0\esptool.exe --chip esp32 --port COM14 --baud 115200 write_flash -z 0x310000 spiffs.bin

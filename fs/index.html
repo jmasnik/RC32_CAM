@@ -1,0 +1,30 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" media="all">
+    <script src="script.js"></script>
+</head>
+<body>
+    <div class="wrapper">    
+        <div id="row3">
+            <div id="col1">
+                <img id="image">
+            </div>
+            <div id="col2">
+                <h2>Engine</h2>
+                <input type="button" class="btn" value="Full" onclick="setMotor(1000);">
+                <input type="button" class="btn" value="Half" onclick="setMotor(600);">
+                <input type="button" class="btn" value="Stop" onclick="setMotor(0);">
+                <input type="button" class="btn" value="Half" onclick="setMotor(-600);">
+                <input type="button" class="btn" value="Full" onclick="setMotor(-1000);">
+                <h2>Light</h2>
+                <input type="button" class="btn half" value="On" onclick="setLight(1);">
+                <input type="button" class="btn half" value="Off" onclick="setLight(0);">
+            </div>
+        </div>
+        <div id="row2" style="padding-left:20px; padding-right:220px;">
+            <input type="range" min="-1000" max="1000" value="0" id="servo" style="width:100%; margin-top:10px; margin-bottom:10px;" oninput="setServo(event)">
+        </div>
+    </div>
+</body>
+</html>
