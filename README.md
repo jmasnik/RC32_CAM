@@ -1,0 +1,2 @@
+# RC32_CAM
+RC model ESP32-CAM
