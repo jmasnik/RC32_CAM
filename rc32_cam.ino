@@ -1,6 +1,5 @@
 #include "esp_camera.h"
 #include <WiFi.h>
-//#include "Arduino.h"
 #include "soc/soc.h"             //disable brownout problems
 #include "soc/rtc_cntl_reg.h"    //disable brownout problems
 #include "SPIFFS.h"
@@ -10,14 +9,13 @@
 #define PIN_LED 33
 #define PIN_LED_FLASH 4 
 
-#define PART_BOUNDARY "123456789000000000000987654321"
+#define PIN_PWM1 14
+#define PIN_PWM2 15
+#define PWM_RESOLUTION 8
+#define PWM_FREQ 10000
 
-// This project was tested with the AI Thinker Model, M5STACK PSRAM Model and M5STACK WITHOUT PSRAM
 #define CAMERA_MODEL_AI_THINKER
-//#define CAMERA_MODEL_M5STACK_PSRAM
-//#define CAMERA_MODEL_M5STACK_WITHOUT_PSRAM
 
-// CAMERA_MODEL_AI_THINKER
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
 #define XCLK_GPIO_NUM      0
@@ -46,6 +44,17 @@ AsyncWebServer server(80);
 // Websocket
 AsyncWebSocket ws("/ws");
 
+int16_t motor_ctl;
+int16_t motor_act;
+uint8_t motor_out1;
+uint8_t motor_out2;
+unsigned long motor_tm;
+
+const int pwmChannel1 = 14;
+const int pwmChannel2 = 15;
+
+int16_t servo_ctl;
+
 uint8_t led_state;
 
 void setup() {
@@ -54,6 +63,28 @@ void setup() {
  
    // variables
    led_state = 0;
+   
+   motor_ctl = 0;
+   motor_act = 0;
+   motor_out1 = 255;
+   motor_out2 = 255;
+   motor_tm = 0;
+
+   servo_ctl = 0;
+
+   // configure LED PWM functionalitites
+   ledcSetup(pwmChannel1, PWM_FREQ, PWM_RESOLUTION);
+   ledcSetup(pwmChannel2, PWM_FREQ, PWM_RESOLUTION);
+
+   // attach the channel to the GPIO to be controlled
+   ledcAttachPin(PIN_PWM2, pwmChannel1);
+   ledcAttachPin(PIN_PWM1, pwmChannel2);
+
+   ledcWrite(pwmChannel1, motor_out1);
+   ledcWrite(pwmChannel2, motor_out2);   
+
+   // prenastaveni pwm pro motor
+   setOutputMotor();
 
    // pin mode
    pinMode(PIN_LED, OUTPUT);
@@ -70,7 +101,7 @@ void setup() {
    Serial.setDebugOutput(false);
   
    // msg
-   Serial.println("- RC32-CAM v0.1 --------------------------------");
+   Serial.println("- RC32-CAM v0.2 --------------------------------");
 
    // SPIFFS
    if(!SPIFFS.begin(true)){
@@ -104,8 +135,9 @@ void setup() {
   
    if(psramFound()){
       //config.frame_size = FRAMESIZE_SVGA;
-      config.frame_size = FRAMESIZE_HVGA;
-      config.jpeg_quality = 10;
+      config.frame_size = FRAMESIZE_VGA;
+      //config.frame_size = FRAMESIZE_HVGA;
+      config.jpeg_quality = 25;
       config.fb_count = 2;
    } else {
       config.frame_size = FRAMESIZE_SVGA;
@@ -168,6 +200,27 @@ void loop() {
 
    currentTime = millis();
 
+   // motor
+   if(currentTime % 5 == 0 && currentTime != motor_tm){
+      if(motor_act > motor_ctl){
+         motor_act--;
+         // preskakovani oblasti, kde motor na nizke napeti nevrci
+         if(motor_act == -1) motor_act = -400;
+         if(motor_act == 399) motor_act = 0;
+      }
+      if(motor_act < motor_ctl){
+         motor_act++;
+         // preskakovani oblasti, kde motor na nizke napeti nevrci
+         if(motor_act == 1) motor_act = 400;
+         if(motor_act == -399) motor_act = 0;
+      }
+      motor_tm = currentTime;
+
+      // prenastaveni pwm pro motor
+      setOutputMotor();
+   }
+
+   // kamera
    if(currentTime % 100 == 0 && currentTime != tm_cam){
       liveCam();
       tm_cam = currentTime;
@@ -206,7 +259,7 @@ uint8_t sendFSFile(AsyncWebServerRequest *request, char *filename, char *content
  */
 void notifyClients() {
    char buff[100];
-   sprintf(buff, "%d|%d|%u|%u|%u", 666, 666, led_state, 666, 666);
+   sprintf(buff, "%d|%d|%u|%d|%u|%u", motor_ctl, servo_ctl, led_state, motor_act, motor_out1, motor_out2);
    ws.textAll(buff);
 }
 
@@ -222,11 +275,11 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
       Serial.println((char *)data);
 
       if(data[0] == 'M'){
-         //motor_ctl = atoi((char*)(data + 1));
+         motor_ctl = atoi((char*)(data + 1));
       }
 
       if(data[0] == 'S'){
-         //servo_ctl = atoi((char*)(data + 1));
+         servo_ctl = atoi((char*)(data + 1));
       }
 
       if(data[0] == 'L'){
@@ -238,9 +291,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
             led_state = 0;
             setFlashOff();
          }
-         notifyClients();
       }
 
+      notifyClients();
    }
 }
 
@@ -308,4 +361,32 @@ void liveCam(){
 
   // return the frame buffer back to be reused
   esp_camera_fb_return(fb);
+}
+
+/**
+ * Nastaveni PWM na motoru
+ */
+void setOutputMotor(){
+   uint8_t out1;
+   uint8_t out2;
+
+   if(motor_act == 0){
+      out1 = 255;
+      out2 = 255;
+   } else {
+      if(motor_act > 0){
+         out1 = 255;
+         out2 = (uint8_t)round((1000.0 - motor_act) * 0.255);
+      } else {
+         out1 = (uint8_t)round((1000.0 + motor_act) * 0.255);
+         out2 = 255;
+      }
+   }
+
+   if(out1 != motor_out1 || out2 != motor_out2){
+      motor_out1 = out1;
+      motor_out2 = out2;      
+      ledcWrite(pwmChannel1, motor_out1);
+      ledcWrite(pwmChannel2, motor_out2);
+   }
 }

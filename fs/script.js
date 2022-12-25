@@ -1,14 +1,19 @@
 
-var gateway = `ws://192.168.0.192/ws`;
 var websocket;
 
 window.addEventListener('load', onLoad);
 
 function initWebSocket() {
-   console.log('Trying to open a WebSocket connection...');
+   var gateway;  
+   if(window.location.protocol == 'file:'){
+      gateway = 'ws://192.168.0.220/ws';
+   } else {
+      gateway = 'ws://' + window.location.hostname + '/ws';
+   }
+   console.log('Trying to open a WebSocket ' + gateway);
    websocket = new WebSocket(gateway);
-   websocket.onopen    = onOpen;
-   websocket.onclose   = onClose;
+   websocket.onopen = onOpen;
+   websocket.onclose = onClose;
    websocket.onmessage = onMessage;
 }
 
@@ -22,10 +27,8 @@ function onClose(event) {
 }
 
 function onMessage(event) {
-   console.log(typeof event.data);
    if(typeof event.data === 'object'){
-      console.log(event.data.size);
-
+      //console.log(event.data.size);
       var urlCreator = window.URL || window.webkitURL;
       var imageUrl = urlCreator.createObjectURL(event.data);
       document.getElementById("image").src = imageUrl;      
