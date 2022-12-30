@@ -1,5 +1,7 @@
 
 var websocket;
+var servo_last_send = 0;
+var servo_slider = 0;
 
 window.addEventListener('load', onLoad);
 
@@ -39,17 +41,32 @@ function onMessage(event) {
 }
 
 function onLoad(event) {
+   setInterval(servoInterval, 250);
    initWebSocket();
 }
 
 function setMotor(value){
-   websocket.send('M' + value);
+   if(websocket.readyState == 1){
+      console.log("Sending motor: " + value);
+      websocket.send('M' + value);
+   }
 }
 
 function setLight(value){
-   websocket.send('L' + value);
+   if(websocket.readyState == 1){
+      console.log("Sending light: " + value);
+      websocket.send('L' + value);
+   }
 }
 
 function setServo(event){
-   websocket.send('S' + event.srcElement.value);
+   servo_slider = event.srcElement.value;
+}
+
+function servoInterval(){
+   if(servo_slider != servo_last_send && websocket.readyState == 1){
+      console.log("Sending servo: " + servo_slider);
+      websocket.send('S' + servo_slider);
+      servo_last_send = servo_slider;
+   }
 }

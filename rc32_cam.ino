@@ -4,6 +4,7 @@
 #include "soc/rtc_cntl_reg.h"    //disable brownout problems
 #include "SPIFFS.h"
 #include <AsyncTCP.h>
+#include <Servo.h>
 #include <ESPAsyncWebServer.h>
 
 #define PIN_LED 33
@@ -13,6 +14,7 @@
 #define PIN_PWM2 15
 #define PWM_RESOLUTION 8
 #define PWM_FREQ 10000
+#define PIN_SERVO 12
 
 #define CAMERA_MODEL_AI_THINKER
 
@@ -53,7 +55,10 @@ unsigned long motor_tm;
 const int pwmChannel1 = 14;
 const int pwmChannel2 = 15;
 
+Servo myservo; 
 int16_t servo_ctl;
+int16_t servo_act;
+unsigned long servo_tm;
 
 uint8_t led_state;
 
@@ -71,6 +76,12 @@ void setup() {
    motor_tm = 0;
 
    servo_ctl = 0;
+   servo_act = 0;
+   servo_tm = 0;
+
+   // servo
+   myservo.attach(PIN_SERVO);
+   myservo.writeMicroseconds(1500);
 
    // configure LED PWM functionalitites
    ledcSetup(pwmChannel1, PWM_FREQ, PWM_RESOLUTION);
@@ -135,9 +146,9 @@ void setup() {
   
    if(psramFound()){
       //config.frame_size = FRAMESIZE_SVGA;
-      config.frame_size = FRAMESIZE_VGA;
-      //config.frame_size = FRAMESIZE_HVGA;
-      config.jpeg_quality = 25;
+      //config.frame_size = FRAMESIZE_VGA;
+      config.frame_size = FRAMESIZE_HVGA;
+      config.jpeg_quality = 20;
       config.fb_count = 2;
    } else {
       config.frame_size = FRAMESIZE_SVGA;
@@ -155,14 +166,13 @@ void setup() {
    }
 
    // wifi AP
-   /*
    WiFi.softAP("Mikul");
    IPAddress IP = WiFi.softAPIP();
    Serial.print("AP IP address: ");
    Serial.println(IP);
-   */
 
    // Wifi STA
+   /*
    WiFi.begin("", "");
    Serial.print("Connecting to WiFi");
    while (WiFi.status() != WL_CONNECTED) {
@@ -170,6 +180,7 @@ void setup() {
       delay(1000);
    }
    Serial.println(".");
+   */
 
    // Print ESP Local IP Address
    Serial.println(WiFi.localIP());
@@ -199,6 +210,20 @@ void loop() {
    ws.cleanupClients();
 
    currentTime = millis();
+
+   // servo
+   if(currentTime % 3 == 0 && currentTime != servo_tm){
+      if(servo_act > servo_ctl){
+         servo_act--;
+      }
+      if(servo_act < servo_ctl){
+         servo_act++;
+      }
+      servo_tm = currentTime;
+
+      // prenastaveni serva
+      setOutputServo();  
+   }
 
    // motor
    if(currentTime % 5 == 0 && currentTime != motor_tm){
@@ -259,7 +284,7 @@ uint8_t sendFSFile(AsyncWebServerRequest *request, char *filename, char *content
  */
 void notifyClients() {
    char buff[100];
-   sprintf(buff, "%d|%d|%u|%d|%u|%u", motor_ctl, servo_ctl, led_state, motor_act, motor_out1, motor_out2);
+   sprintf(buff, "%d|%d|%u|%d|%u|%u|%d", motor_ctl, servo_ctl, led_state, motor_act, motor_out1, motor_out2, servo_act);
    ws.textAll(buff);
 }
 
@@ -389,4 +414,12 @@ void setOutputMotor(){
       ledcWrite(pwmChannel1, motor_out1);
       ledcWrite(pwmChannel2, motor_out2);
    }
+}
+
+/**
+ * Nastaveni serva tam kde ma byt
+ */
+void setOutputServo(){
+   int servo_neutral_ms = 1565;
+   myservo.writeMicroseconds(servo_neutral_ms + round(servo_act / 2.5));
 }
