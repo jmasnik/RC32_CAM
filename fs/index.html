@@ -11,19 +11,19 @@
                 <img id="image">
             </div>
             <div id="col2">
-                <h2>Engine</h2>
                 <input type="button" class="btn" value="Full" onclick="setMotor(1000);">
-                <input type="button" class="btn" value="Half" onclick="setMotor(800);">
-                <input type="button" class="btn" value="Stop" onclick="setMotor(0);">
-                <input type="button" class="btn" value="Half" onclick="setMotor(-800);">
-                <input type="button" class="btn" value="Full" onclick="setMotor(-1000);">
-                <h2>Light</h2>
-                <input type="button" class="btn half" value="On" onclick="setLight(1);">
-                <input type="button" class="btn half" value="Off" onclick="setLight(0);">
+                <input type="button" class="btn half" value="Slow" onclick="setMotor(600);">
+                <input type="button" class="btn half" value="Half" onclick="setMotor(800);">
+                <input type="button" class="btn ora" value="Stop" onclick="setMotor(0);">
+                <input type="button" class="btn half" value="Slow" onclick="setMotor(-600);">
+                <input type="button" class="btn half" value="Half" onclick="setMotor(-800);">
+                <hr>
+                <input type="button" class="btn half" value="Light On" onclick="setLight(1);">
+                <input type="button" class="btn half" value="Light Off" onclick="setLight(0);">
             </div>
         </div>
-        <div id="row2" style="padding-left:20px; padding-right:220px;">
-            <input type="range" min="-1000" max="1000" value="0" id="servo" style="width:100%; margin-top:10px; margin-bottom:10px;" oninput="setServo(event)">
+        <div id="row2" style="padding-left:20px; padding-right:200px;">
+            <input type="range" min="-1000" max="1000" value="0" id="servo" style="width:100%; margin-top:10px; margin-bottom:15px;" oninput="setServo(event)">
         </div>
     </div>
 </body>

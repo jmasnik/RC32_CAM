@@ -1,38 +1,11 @@
-.wrapper, html, body {
-    height: 100%;
-    margin: 0;
-    font-family: sans-serif;
-}
-.wrapper {
-    display: flex;
-    flex-direction: column;
-}
-#row2 {
-    background-color: gray;
-}
+.wrapper, html, body { height: 100%; margin: 0; font-family: sans-serif; }
+.wrapper { display: flex; flex-direction: column; }
+#row2 { background-color: gray; }
 #row3 { flex:2; display: flex; }
 #col1 { text-align: center; background-color: black; flex: 1 1; min-height: 100%; overflow: auto; max-height: 300px; }
-#col1 img { background-color:#111; min-width:640px; min-height:480px; border:0px; max-width: 100%; }
-#col2 {
-    background-color: lightgray;
-    flex: 0 0 180px;
-    min-height: 100%; /* chrome needed it a question time , not anymore */
-    padding:10px;
-}
-input.btn {
-    width:100%;
-    margin-bottom:10px;
-    background-color: #3c78fa;
-    color:white;
-    border: none;
-    padding:5px;
-    border-radius: 5px;
-}
-input.btn.half {
-    width:48%;
-}
-h2 {
-    font-size: 16px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
+#col1 img { background-color:#111; min-width:320px; min-height:240px; border:0px; max-width: 100%; }
+#col2 { background-color: lightgray; flex: 0 0 145px; min-height: 90%; padding:10px; }
+input.btn { width:100%; margin-bottom:10px; background-color: #3c78fa; color:white; border: none; padding:5px; border-radius: 5px; }
+input.btn.half { width:48%; }
+input.btn.ora { background-color: #e07a1a; }
+h2 { font-size: 16px; margin-top: 5px; margin-bottom: 5px; }

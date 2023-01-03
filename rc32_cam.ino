@@ -112,7 +112,7 @@ void setup() {
    Serial.setDebugOutput(false);
   
    // msg
-   Serial.println("- RC32-CAM v0.2 --------------------------------");
+   Serial.println("- RC32-CAM v0.3 --------------------------------");
 
    // SPIFFS
    if(!SPIFFS.begin(true)){
@@ -212,7 +212,7 @@ void loop() {
    currentTime = millis();
 
    // servo
-   if(currentTime % 3 == 0 && currentTime != servo_tm){
+   if(currentTime % 2 == 0 && currentTime != servo_tm){
       if(servo_act > servo_ctl){
          servo_act--;
       }
@@ -226,7 +226,7 @@ void loop() {
    }
 
    // motor
-   if(currentTime % 5 == 0 && currentTime != motor_tm){
+   if(currentTime % 4 == 0 && currentTime != motor_tm){
       if(motor_act > motor_ctl){
          motor_act--;
          // preskakovani oblasti, kde motor na nizke napeti nevrci
@@ -250,6 +250,8 @@ void loop() {
       liveCam();
       tm_cam = currentTime;
    }
+
+   delay(1);
 }
 
 /**
@@ -421,5 +423,5 @@ void setOutputMotor(){
  */
 void setOutputServo(){
    int servo_neutral_ms = 1565;
-   myservo.writeMicroseconds(servo_neutral_ms + round(servo_act / 2.5));
+   myservo.writeMicroseconds(servo_neutral_ms + round(servo_act / 3.0));
 }
