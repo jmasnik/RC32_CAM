@@ -70,3 +70,8 @@ function servoInterval(){
       servo_last_send = servo_slider;
    }
 }
+
+function centerServo(){
+   document.getElementById("servo").value = 0;
+   servo_slider = 0;
+}

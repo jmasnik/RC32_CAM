@@ -11,19 +11,20 @@
                 <img id="image">
             </div>
             <div id="col2">
-                <input type="button" class="btn" value="Full" onclick="setMotor(1000);">
-                <input type="button" class="btn half" value="Slow" onclick="setMotor(600);">
-                <input type="button" class="btn half" value="Half" onclick="setMotor(800);">
-                <input type="button" class="btn ora" value="Stop" onclick="setMotor(0);">
-                <input type="button" class="btn half" value="Slow" onclick="setMotor(-600);">
-                <input type="button" class="btn half" value="Half" onclick="setMotor(-800);">
+                <input type="button" class="btn" value="Full" ontouchstart="setMotor(1000);">
+                <input type="button" class="btn half" value="Slow" ontouchstart="setMotor(600);">
+                <input type="button" class="btn half" value="Half" ontouchstart="setMotor(800);">
+                <input type="button" class="btn ora" value="Stop" ontouchstart="setMotor(0);">
+                <input type="button" class="btn half" value="Slow" ontouchstart="setMotor(-600);">
+                <input type="button" class="btn half" value="Half" ontouchstart="setMotor(-800);">
                 <hr>
-                <input type="button" class="btn half" value="Light On" onclick="setLight(1);">
-                <input type="button" class="btn half" value="Light Off" onclick="setLight(0);">
+                <input type="button" class="btn half" value="Light On" ontouchstart="setLight(1);">
+                <input type="button" class="btn half" value="Light Off" ontouchstart="setLight(0);">
             </div>
         </div>
-        <div id="row2" style="padding-left:20px; padding-right:200px;">
-            <input type="range" min="-1000" max="1000" value="0" id="servo" style="width:100%; margin-top:10px; margin-bottom:15px;" oninput="setServo(event)">
+        <div id="row2" style="padding-left:20px; padding-right:20px;">
+            <input type="button" class="btn" style="width:30px; float:left; margin-top:8px;" value="C" onclick="centerServo()">
+            <input type="range" min="-1000" max="1000" value="0" id="servo" style="width:80%; margin-left:15px; margin-top:12px; margin-bottom:15px; float:left;" oninput="setServo(event)">
         </div>
     </div>
 </body>
